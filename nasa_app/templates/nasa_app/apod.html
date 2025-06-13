@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+    body {
+        background: url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+        background-size: cover;
+        color: #ffffff;
+        font-family: 'Share Tech Mono', monospace;
+        text-align: center;
+        padding: 20px;
+        margin: 0;
+    }
+
+    h1, h2 {
+        color: #000000;
+    }
+
+    h3 {
+        color: #ffffff;
+    }
+
+    img {
+        max-width: 350px;
+        height: auto;
+        border: 2px solid #ffffff;
+        box-shadow: 0 0 15px #ffffff;
+        cursor: pointer;
+    }
+
+    iframe {
+        margin-top: 20px;
+    }
+
+    p {
+        display: inline-block;
+        padding: 20px;
+        margin: 20px auto;
+        width: 85%;
+        line-height: 1.6;
+        background-color: rgba(0, 0, 0, 0.6);
+        border-radius: 10px;
+        box-shadow: 0 0 10px #ffffff;
+        color: #ffffff;
+    }
+
+    input[type="date"], button {
+        padding: 8px;
+        margin: 10px;
+        font-family: inherit;
+        background-color: rgba(255, 255, 255, 0.9);
+        color: #000000;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 0 5px #ffffff;
+        cursor: pointer;
+    }
+
+    form {
+        background-color: rgba(0, 0, 0, 0.5);
+        display: inline-block;
+        padding: 15px 25px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        box-shadow: 0 0 10px #ffffff;
+    }
+
+    .error {
+        color: #ff4c4c;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.95);
+    }
+
+    .modal-content {
+        margin: 60px auto;
+        display: block;
+        max-width: 90%;
+        max-height: 80vh;
+        border: 2px solid #fff;
+        box-shadow: 0 0 25px #fff;
+    }
+
+    .close {
+        position: absolute;
+        top: 30px;
+        right: 45px;
+        color: #ffffff;
+        font-size: 40px;
+        font-weight: bold;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .title-box {
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>NASA Picture of the Day</h1>
+
+        <form id="apodForm" method="get" class="form-box">
+            <label for="date">Select a date:</label>
+            <input type="date" name="date" id="date" max="{{ today }}">
+            <button type="submit">View</button>
+            <button type="button" id="randomBtn">Random</button>
+        </form>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% else %}
+            <div class="title-box">
+                <h2>{{ title }}</h2>
+                <small>({{ date }})</small>
+            </div>
+
+            {% if media_type == "image" and image_url %}
+                <img src="{{ image_url }}" alt="{{ title }}" class="preview-img" id="modalTrigger">
+                <br>
+                <a href="{{ image_url }}" download>
+                    <button>Download Image</button>
+                </a>
+
+                <div id="imageModal" class="modal">
+                    <span class="close" id="closeModal">&times;</span>
+                    <img class="modal-content" id="modalImg" src="{{ image_url }}" alt="{{ title }}">
+                </div>
+
+            {% elif media_type == "video" %}
+                <iframe width="560" height="315" src="{{ image_url }}" frameborder="0" allowfullscreen></iframe>
+            {% endif %}
+
+            <h3>Explanation</h3>
+            <p>{{ explanation }}</p>
+        {% endif %}
+    </div>
+
+    <script>
+       
+        const modal = document.getElementById("imageModal");
+        const img = document.getElementById("modalTrigger");
+        const modalImg = document.getElementById("modalImg");
+        const closeBtn = document.getElementById("closeModal");
+
+        if (img) {
+            img.onclick = () => {
+                modal.style.display = "block";
+                modalImg.src = img.src;
+            };
+        }
+
+        if (closeBtn) {
+            closeBtn.onclick = () => {
+                modal.style.display = "none";
+            };
+        }
+
+        window.onclick = (e) => {
+            if (e.target === modal) {
+                modal.style.display = "none";
+            }
+        };
+
+        
+        const randomBtn = document.getElementById("randomBtn");
+        const form = document.getElementById("apodForm");
+        const dateInput = document.getElementById("date");
+
+        randomBtn.onclick = () => {
+            dateInput.value = "";
+            const randomInput = document.createElement("input");
+            randomInput.type = "hidden";
+            randomInput.name = "random";
+            randomInput.value = "true";
+            form.appendChild(randomInput);
+            form.submit();
+        };
+
+        
+        document.addEventListener("DOMContentLoaded", function () {
+            const url = new URL(window.location);
+            if (url.searchParams.get("random") === "true" || url.searchParams.get("date") === "") {
+                url.searchParams.delete("random");
+                url.searchParams.delete("date");
+                history.replaceState(null, null, url.pathname + url.search);
+            }
+
+            if (window.location.hash === "#imageModal") {
+                history.replaceState(null, null, url.pathname + url.search);
+            }
+        });
+    </script>
+</body>
+</html>
