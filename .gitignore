@@ -1,15 +1,7 @@
-# Ignore virtual environment
 venv/
-
-# Ignore env file
 .env
-
-# Ignore Python cache
+remove-secrets.txt
 __pycache__/
 *.py[cod]
-
-# Ignore SQLite DB
 *.sqlite3
-
-# Optional: VS Code settings
 .vscode/
